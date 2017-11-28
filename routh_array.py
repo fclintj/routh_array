@@ -5,11 +5,10 @@ def main():
     done = False 
     k = sym.Symbol('k')
     # k = Fraction(0)
-    coef = [1,k+7,4*k,8*k]
+    coef = [1,11,10,200*k]
     # coef = [1,15,-50,2,0.1]
     matrix = routh_array(coef) 
-     
-    
+
     if len(matrix) != len(coef):
         print("Original Array:")
         print_matrix(matrix) 
@@ -31,6 +30,13 @@ def first_layers(coef):
     b = coef[1::2] 
     b += [0]*(len(a)-len(b))
     return [a,b]
+
+def replace_suberscript(number):
+    super_scripts = ["⁰","¹","²","³","⁴","⁵","⁶","⁷","⁸","⁹"]
+    number = str(number)
+    for indx, script in enumerate(super_scripts):
+        number = number.replace(str(indx),script)
+    return number
 
 def routh_array(coef):
     lines = first_layers(coef) 
@@ -65,13 +71,33 @@ def print_matrix(lines):
         for i,term in enumerate(line):
             col_max[i] = max(col_max[i],len(str(term)))
 
+    # draw top line
+    print(end="   ┌")
+    for width in col_max[:-1]:
+        for i in range(width):
+            print(" ",end="")
+        print("   ",end="")
+    for i in range(col_max[-1]):
+        print(" ",end="")
+    print("  ┐")
+
     # match the column width to the largest term and center 
-    for line in lines:
-        print(end="[ ")
+    for indx, line in enumerate(lines):
+        print("s"+replace_suberscript(str(len(lines)-indx-1).ljust(1)),end=" ")
+        print(end="│ ")
         for i,term in enumerate(line[:-1]):
             print(str(term).center(int(col_max[i])),end=" , ")
-        print(str(line[-1]).center(int(col_max[i]))+" ]")
-    print(end="\n")
+        print(str(line[-1]).center(int(col_max[i+1]))+" │")
+
+    # draw bottom line
+    print(end="   └")
+    for width in col_max[:-1]:
+        for i in range(width):
+            print(" ",end="")
+        print("   ",end="")
+    for i in range(col_max[-1]):
+        print(" ",end="")
+    print("  ┘")
 
 def check_stability(lines):
     k_values = []
