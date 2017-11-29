@@ -1,17 +1,15 @@
 import sympy as sym
 from fractions import Fraction
 
+# TODO: Print decision boundary for k
 def main():
-    done = False 
     k = sym.Symbol('k')
-    # k = Fraction(0)
-    coef = [1,11,10,200*k]
-    # coef = [1,15,-50,2,0.1]
+    coef = [1,11,1,200*k]
     matrix = routh_array(coef) 
 
     if len(matrix) != len(coef):
         print("Original Array:")
-        print_matrix(matrix) 
+        print_matrix(matrix,len(coef)) 
         s = sym.Symbol('s')
         print(s**2*matrix[-2][0]+matrix[-2][1])
         print("Pole Crossing located at: " 
@@ -20,7 +18,7 @@ def main():
         print("\nReversed Array to check stability:")
         matrix = routh_array(coef[::-1])
 
-    print_matrix(matrix)
+    print_matrix(matrix,len(coef))
     stable = check_stability(matrix) 
     if stable is True and len(matrix) is len(coef):
         print("System is Stable")
@@ -30,13 +28,6 @@ def first_layers(coef):
     b = coef[1::2] 
     b += [0]*(len(a)-len(b))
     return [a,b]
-
-def replace_suberscript(number):
-    super_scripts = ["⁰","¹","²","³","⁴","⁵","⁶","⁷","⁸","⁹"]
-    number = str(number)
-    for indx, script in enumerate(super_scripts):
-        number = number.replace(str(indx),script)
-    return number
 
 def routh_array(coef):
     lines = first_layers(coef) 
@@ -64,7 +55,7 @@ def find_next(a,b):
        terms -= a[0]*b[1]/b[0]
     return terms 
 
-def print_matrix(lines):
+def print_matrix(lines,len_coef):
     # get largest term length for each column
     col_max = [1]*len(lines[0])
     for line in lines:
@@ -83,7 +74,7 @@ def print_matrix(lines):
 
     # match the column width to the largest term and center 
     for indx, line in enumerate(lines):
-        print("s"+replace_suberscript(str(len(lines)-indx-1).ljust(1)),end=" ")
+        print("s"+replace_suberscript(str(len_coef-indx-1).ljust(1)),end=" ")
         print(end="│ ")
         for i,term in enumerate(line[:-1]):
             print(str(term).center(int(col_max[i])),end=" , ")
@@ -97,7 +88,14 @@ def print_matrix(lines):
         print("   ",end="")
     for i in range(col_max[-1]):
         print(" ",end="")
-    print("  ┘")
+    print("  ┘",end="\n\n")
+    
+def replace_suberscript(number):
+    super_scripts = ["⁰","¹","²","³","⁴","⁵","⁶","⁷","⁸","⁹"]
+    number = str(number)
+    for indx, script in enumerate(super_scripts):
+        number = number.replace(str(indx),script)
+    return number
 
 def check_stability(lines):
     k_values = []
@@ -124,7 +122,6 @@ def check_stability(lines):
             print(k_range)
         
     return sum(k_values,[])
-
 
 if __name__ == '__main__':
   main()
